@@ -1,3 +1,1 @@
-# projects
-
-#folder filled with past projects
+#saferm file for UNIX, emulates trash can for MAC OSX and recycle bin for Windows
