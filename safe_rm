@@ -1,0 +1,131 @@
+#!/bin/bash
+
+######################################
+# CHECK TO SEE IF $HOME/DELETED EXISTS
+#######################################
+
+if [ ! -d "$HOME/deleted" ]
+then
+  mkdir "$HOME/deleted"
+fi
+
+##########################
+#SET VARIABLES FOR GETOPTS
+##########################
+
+#initialize variables
+talk=0
+silent=0
+wildcard=0
+romney=0
+Roger=0
+
+while getopts :ivrR OPTION
+do
+        case   $OPTION in
+                i)talk=1 ;;
+                v)silent=1 ;;
+                r)romney=1 ;;
+                R)Roger=1 ;;
+                *)wildcard=1 ;;
+        esac
+done
+
+if [ -z  $1 ]; then
+   echo "safe_rm:missing operand try \`rm --help\` for more information"
+fi
+
+shift $((OPTIND-1))
+
+##################################
+#AUTOMATICALLY CREATE DIRECTORIES
+##################################
+
+#directory
+#function calldirectory ()
+existence=$(printenv | grep RMCFG)
+     if [ ! -z $existence ]
+     then
+     directory2=$existence
+        elif [ -s $HOME/.rm.cfg ]
+        then
+        directory2=$(cat .rm.cfg)
+        else
+        directory2=[$HOME/deleted]
+fi
+
+######################
+#REPLICATE RM COMMAND
+#####################
+
+for file in "$@"
+do
+
+dir=$(find $HOME -name $file -type f -print)
+inode=$(ls -i $dir | cut -d" " -f1)
+base=$(basename $file)
+
+         if [[ $talk -eq 1 ]] ;
+            then
+            read -p "safe_rm: remove regular empty file?" input
+
+         elif [[ $input = "y*" ]] ;
+            then
+             erase $file
+
+        elif [[ $wildcard -eq 1 ]] ;
+           then
+           echo "safe_rm:invalid option"
+
+        elif [[ $romney -eq 1 ]] ;
+           then
+           echo "safe:rm:removed file"
+
+        elif [[ $Roger -eq 1 ]] ;
+           then
+           echo "safe:rm:removed file"
+
+
+         elif [[ $silent -eq 1 ]] ;
+           then
+           erase $file
+           echo "safe_rm:removed file'"
+
+
+
+
+
+fi
+done
+
+##################
+#FUNCTION TO MOVE
+##################
+
+function erase()
+{
+  mv $file $HOME/deleted/$file"_"${inode} 2> /dev/null
+  echo $file_${inode}:$dir >> $HOME/.restore.info
+}
+
+for file in "$@"
+
+do
+
+dir=$(find $HOME -name $file -type f -print)
+inode=$(ls -i $dir | cut -d" " -f1)
+base=$(basename $file)
+
+     if [ -f $file ]; then
+         erase $file
+
+        elif [[ ! -e $HOME/deleted/$file ]]; then
+        echo "safe_rm: cannot remove'$file'no such file or directory"
+
+         elif  [ -d  "directory" ]; then
+         echo "safe_rm: failed to remove $file,this is a directory"
+     fi
+
+       echo
+       erase $file
+done
