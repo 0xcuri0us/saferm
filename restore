@@ -1,0 +1,70 @@
+#!/bin/bash
+
+#############################
+#INFO CHECK: DOES FILE EXIST?
+##############################
+# if [[ ! -e $file ]]; then
+ #    echo "restore: cannot remove'$file'no such file or directory"
+  #  exit 0    
+ #fi
+
+#################
+#RESTORE FUNCTION
+#################
+ 
+function restore {
+
+        mv $filefolder/$file $filefolder/$oldfilename
+        if [ ! -d $locate ] ; then
+                mkdir -p $locate
+        fi
+        targetdirectory=$locate $filefolder/$oldfilename
+                grep -v $file $HOME/.restore.info > $HOME/.tmp
+                mv $HOME/.tmp $HOME/.restore.info
+        }
+
+####################
+#DIRECTORY FUNCTION 
+###################
+
+function directory_restore {
+        env=$(printenv | grep RMCFG | cut -d"=" -f2)
+        if [ ! -z $env ] ; then
+                directory1=$env
+        elif [ -s .rm.cfg ] ; then
+               rmcfg1=$(cat ~/.rm.cfg)
+                directory1=$rmcfg_file
+        else
+           home=$(echo $HOME/deleted)
+        fi
+        }
+
+
+ if [ -z  $1 ]; then 
+        echo "restore: missing operand"
+fi
+
+directory_restore  $directory1 
+
+ if [[ ! -e $file ]]; then
+     echo "restore: cannot remove'$file'no such file or directory"
+     exit 0
+ fi
+
+restorefile=$*
+for file in $restorefile
+do
+
+ locate=$(cat $HOME/.restore.info | grep $file | cut -d":" -f2 | cut -d"/" -f1-)
+ oldfilename=$(cat $HOME/.restore.info | grep $file | cut -d":" -f1 | rev | cut -d"_" -f2- | rev)  sla=/
+
+     if [ -e $locate$oldfilename ] ; then
+   read -p  "Would you like to override the existing file or directory? y/n  " YN
+                if [ $YN = Y ] || [ $YN = y ] ; then
+                                #rm $locate$oldfilename 
+                                restore $locate$oldfilename  
+                        else
+                                echo "file not restored"
+                        fi
+                fi
+done
